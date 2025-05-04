@@ -1,0 +1,9 @@
+voting_system.question.add:
+  title: 'Adicionar pergunta'
+  route_name: entity.voting_question.add_form
+  base_route: entity.voting_question.collection
+
+voting_system.option.add:
+  title: 'Adicionar opção'
+  route_name: entity.voting_option.add_form
+  base_route: entity.voting_option.collection 

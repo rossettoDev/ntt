@@ -1,0 +1,8 @@
+name: Voting System
+type: module
+description: 'Sistema de votação simples para Drupal.'
+package: Custom
+core_version_requirement: ^9 || ^10
+dependencies:
+  - drupal:rest
+  - restui:restui 

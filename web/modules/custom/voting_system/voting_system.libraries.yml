@@ -1,0 +1,17 @@
+voting-form:
+  version: 1.x
+  css:
+    theme:
+      css/voting-form.css: {}
+  js:
+    js/voting-form.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/once
+
+voting-report:
+  version: 1.x
+  css:
+    theme:
+      css/voting-report.css: {} 

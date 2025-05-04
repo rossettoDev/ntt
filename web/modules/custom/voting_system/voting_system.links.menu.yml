@@ -1,0 +1,48 @@
+voting_system.admin:
+  title: 'Sistema de Votação'
+  description: 'Administrar o sistema de votação'
+  parent: system.admin
+  route_name: voting_system.admin
+  weight: 100
+
+voting_system.admin.questions:
+  title: 'Perguntas'
+  description: 'Gerenciar perguntas de votação'
+  parent: voting_system.admin
+  route_name: voting_system.questions
+  weight: 10
+
+voting_system.admin.votes:
+  title: 'Votos'
+  description: 'Visualizar votos registrados'
+  parent: voting_system.admin
+  route_name: voting_system.votes
+  weight: 20
+
+voting_system.admin.report:
+  title: 'Relatório de Votos'
+  description: 'Visualizar relatório de votos por pergunta'
+  parent: voting_system.admin
+  route_name: voting_system.report
+  weight: 30
+
+voting_system.admin.settings:
+  title: 'Configurações'
+  description: 'Configurar o sistema de votação'
+  parent: voting_system.admin
+  route_name: voting_system.settings
+  weight: 40
+
+voting_system.options:
+  title: 'Opções'
+  description: 'Gerencie as opções de resposta'
+  parent: voting_system.admin
+  route_name: entity.voting_option.collection
+  weight: 2
+
+voting_system.settings:
+  title: 'Configurações'
+  description: 'Configurar o sistema de votação'
+  parent: voting_system.admin
+  route_name: voting_system.settings
+  weight: 4 

@@ -1,0 +1,23 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a voting form.
+ *
+ * Available variables:
+ * - question: The question entity.
+ * - form: The form array.
+ * - has_voted: Whether the user has already voted.
+ */
+#}
+{{ attach_library('voting_system/voting-form') }}
+
+<div class="voting-form">
+  {% if has_voted %}
+    <div class="voting-form__message voting-form__message--success">
+      Você já votou nesta pergunta.
+    </div>
+  {% else %}
+    <h2 class="voting-form__title">{{ question.label() }}</h2>
+    {{ form }}
+  {% endif %}
+</div> 

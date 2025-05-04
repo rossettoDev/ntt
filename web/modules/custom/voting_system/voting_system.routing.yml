@@ -1,0 +1,59 @@
+voting_system.voting_form:
+  path: '/voting'
+  defaults:
+    _controller: '\Drupal\voting_system\Controller\VotingController::votingForm'
+    _title: 'Votação'
+  requirements:
+    _permission: 'access content'
+
+voting_system.question_vote:
+  path: '/voting/{question_id}'
+  defaults:
+    _controller: '\Drupal\voting_system\Controller\VotingController::questionVote'
+    _title: 'Votar'
+  requirements:
+    _permission: 'access content'
+  options:
+    parameters:
+      question_id:
+        type: integer
+
+voting_system.admin:
+  path: '/admin/voting'
+  defaults:
+    _controller: '\Drupal\voting_system\Controller\VotingController::adminPage'
+    _title: 'Sistema de Votação'
+  requirements:
+    _permission: 'administer voting system'
+
+voting_system.questions:
+  path: '/admin/voting/questions'
+  defaults:
+    _controller: '\Drupal\voting_system\Controller\VotingController::questionList'
+    _title: 'Perguntas'
+  requirements:
+    _permission: 'administer voting system'
+
+voting_system.votes:
+  path: '/admin/voting/votes'
+  defaults:
+    _controller: '\Drupal\voting_system\Controller\VotingController::voteList'
+    _title: 'Votos'
+  requirements:
+    _permission: 'administer voting system'
+
+voting_system.settings:
+  path: '/admin/voting/settings'
+  defaults:
+    _form: '\Drupal\voting_system\Form\VotingSystemSettingsForm'
+    _title: 'Configurações'
+  requirements:
+    _permission: 'administer voting system'
+
+voting_system.report:
+  path: '/admin/voting/report'
+  defaults:
+    _controller: '\Drupal\voting_system\Controller\VotingReportController::report'
+    _title: 'Relatório de Votos'
+  requirements:
+    _permission: 'administer voting system' 

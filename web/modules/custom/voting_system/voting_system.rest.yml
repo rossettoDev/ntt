@@ -1,0 +1,48 @@
+voting_questions_resource:
+  type: resource
+  label: Voting Questions Resource
+  uri_paths:
+    canonical: /api/voting/questions
+    create: /api/voting/questions
+  methods: [GET, POST]
+  formats:
+    json: json
+  authentication:
+    - cookie
+    - basic_auth
+
+voting_question_resource:
+  type: resource
+  label: Voting Question Resource
+  uri_paths:
+    canonical: /api/voting/questions/{id}
+  methods: [GET]
+  formats:
+    json: json
+  authentication:
+    - cookie
+    - basic_auth
+
+voting_vote_resource:
+  type: resource
+  label: Voting Vote Resource
+  uri_paths:
+    create: /api/voting/vote
+  methods: [POST]
+  formats:
+    json: json
+  authentication:
+    - cookie
+    - basic_auth
+
+voting_results_resource:
+  type: resource
+  label: Voting Results Resource
+  uri_paths:
+    canonical: /api/voting/results/{id}
+  methods: [GET]
+  formats:
+    json: json
+  authentication:
+    - cookie
+    - basic_auth 

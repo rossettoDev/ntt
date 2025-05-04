@@ -1,0 +1,1127 @@
+<?php
+
+/**
+ * @file
+ * Contains voting_system.install.
+ */
+
+use Drupal\Core\Database\Database;
+
+/**
+ * Implements hook_install().
+ */
+function voting_system_install() {
+  \Drupal::logger('voting_system')->notice('Installing voting_system module...');
+  
+  $schema = \Drupal::database()->schema();
+  
+  // Create voting_question table.
+  if (!$schema->tableExists('voting_question')) {
+    \Drupal::logger('voting_system')->notice('Creating voting_question table...');
+    $schema->createTable('voting_question', [
+      'fields' => [
+        'id' => [
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'uuid' => [
+          'type' => 'varchar',
+          'length' => 128,
+          'not null' => TRUE,
+        ],
+        'langcode' => [
+          'type' => 'varchar',
+          'length' => 32,
+          'not null' => TRUE,
+          'default' => 'pt-br',
+        ],
+        'title' => [
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+          'default' => '',
+        ],
+        'identifier' => [
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+          'default' => '',
+        ],
+        'status' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 1,
+        ],
+        'show_results' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 1,
+        ],
+        'created' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'changed' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+      ],
+      'primary key' => ['id'],
+      'unique keys' => [
+        'voting_question__uuid' => ['uuid'],
+        'voting_question__identifier' => ['identifier'],
+      ],
+      'indexes' => [
+        'voting_question__status' => ['status'],
+      ],
+    ]);
+  }
+
+  // Create voting_question_field_data table.
+  if (!$schema->tableExists('voting_question_field_data')) {
+    \Drupal::logger('voting_system')->notice('Creating voting_question_field_data table...');
+    $schema->createTable('voting_question_field_data', [
+      'fields' => [
+        'id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'langcode' => [
+          'type' => 'varchar',
+          'length' => 32,
+          'not null' => TRUE,
+          'default' => 'pt-br',
+        ],
+        'title' => [
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+          'default' => '',
+        ],
+        'identifier' => [
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+          'default' => '',
+        ],
+        'status' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 1,
+        ],
+        'show_results' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 1,
+        ],
+        'created' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'changed' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'default_langcode' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 1,
+        ],
+      ],
+      'primary key' => ['id', 'langcode'],
+      'indexes' => [
+        'voting_question__id__default_langcode__langcode' => ['id', 'default_langcode', 'langcode'],
+        'voting_question__title' => ['title'],
+        'voting_question__identifier' => ['identifier'],
+      ],
+    ]);
+  }
+
+  // Create voting_option table.
+  if (!$schema->tableExists('voting_option')) {
+    \Drupal::logger('voting_system')->notice('Creating voting_option table...');
+    $schema->createTable('voting_option', [
+      'fields' => [
+        'id' => [
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'uuid' => [
+          'type' => 'varchar',
+          'length' => 128,
+          'not null' => TRUE,
+        ],
+        'langcode' => [
+          'type' => 'varchar',
+          'length' => 32,
+          'not null' => TRUE,
+          'default' => 'pt-br',
+        ],
+        'question_id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => FALSE,
+        ],
+        'title' => [
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+          'default' => '',
+        ],
+        'weight' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'status' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 1,
+        ],
+        'created' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'changed' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+      ],
+      'primary key' => ['id'],
+      'unique keys' => [
+        'voting_option__uuid' => ['uuid'],
+      ],
+      'indexes' => [
+        'voting_option__question' => ['question_id'],
+        'voting_option__status' => ['status'],
+      ],
+    ]);
+  }
+
+  // Create voting_option_field_data table.
+  if (!$schema->tableExists('voting_option_field_data')) {
+    \Drupal::logger('voting_system')->notice('Creating voting_option_field_data table...');
+    $schema->createTable('voting_option_field_data', [
+      'fields' => [
+        'id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'langcode' => [
+          'type' => 'varchar',
+          'length' => 32,
+          'not null' => TRUE,
+          'default' => 'pt-br',
+        ],
+        'question_id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => FALSE,
+        ],
+        'title' => [
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => TRUE,
+          'default' => '',
+        ],
+        'description__value' => [
+          'type' => 'text',
+          'size' => 'big',
+          'not null' => FALSE,
+        ],
+        'description__format' => [
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ],
+        'image__target_id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => FALSE,
+        ],
+        'image__alt' => [
+          'type' => 'varchar',
+          'length' => 512,
+          'not null' => FALSE,
+        ],
+        'image__title' => [
+          'type' => 'varchar',
+          'length' => 1024,
+          'not null' => FALSE,
+        ],
+        'image__width' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => FALSE,
+        ],
+        'image__height' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => FALSE,
+        ],
+        'weight' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'status' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 1,
+        ],
+        'created' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'changed' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'default_langcode' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 1,
+        ],
+      ],
+      'primary key' => ['id', 'langcode'],
+      'indexes' => [
+        'voting_option__id__default_langcode__langcode' => ['id', 'default_langcode', 'langcode'],
+        'voting_option__title' => ['title'],
+        'voting_option__question' => ['question_id'],
+      ],
+    ]);
+  }
+
+  // Create voting_option__description table.
+  if (!$schema->tableExists('voting_option__description')) {
+    \Drupal::logger('voting_system')->notice('Creating voting_option__description table...');
+    $schema->createTable('voting_option__description', [
+      'fields' => [
+        'bundle' => [
+          'type' => 'varchar',
+          'length' => 128,
+          'not null' => TRUE,
+          'default' => '',
+        ],
+        'deleted' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'entity_id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'revision_id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'langcode' => [
+          'type' => 'varchar',
+          'length' => 32,
+          'not null' => TRUE,
+          'default' => 'pt-br',
+        ],
+        'delta' => [
+          'type' => 'int',
+          'not null' => TRUE,
+        ],
+        'description_value' => [
+          'type' => 'text',
+          'size' => 'big',
+          'not null' => FALSE,
+        ],
+        'description_format' => [
+          'type' => 'varchar',
+          'length' => 255,
+          'not null' => FALSE,
+        ],
+      ],
+      'primary key' => ['entity_id', 'deleted', 'delta', 'langcode'],
+      'indexes' => [
+        'bundle' => ['bundle'],
+        'revision_id' => ['revision_id'],
+      ],
+    ]);
+  }
+
+  // Create voting_option__image table.
+  if (!$schema->tableExists('voting_option__image')) {
+    \Drupal::logger('voting_system')->notice('Creating voting_option__image table...');
+    $schema->createTable('voting_option__image', [
+      'fields' => [
+        'bundle' => [
+          'type' => 'varchar',
+          'length' => 128,
+          'not null' => TRUE,
+          'default' => '',
+        ],
+        'deleted' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'entity_id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'revision_id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'langcode' => [
+          'type' => 'varchar',
+          'length' => 32,
+          'not null' => TRUE,
+          'default' => 'pt-br',
+        ],
+        'delta' => [
+          'type' => 'int',
+          'not null' => TRUE,
+        ],
+        'image_target_id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => FALSE,
+        ],
+        'image_alt' => [
+          'type' => 'varchar',
+          'length' => 512,
+          'not null' => FALSE,
+        ],
+        'image_title' => [
+          'type' => 'varchar',
+          'length' => 1024,
+          'not null' => FALSE,
+        ],
+        'image_width' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => FALSE,
+        ],
+        'image_height' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => FALSE,
+        ],
+      ],
+      'primary key' => ['entity_id', 'deleted', 'delta', 'langcode'],
+      'indexes' => [
+        'bundle' => ['bundle'],
+        'revision_id' => ['revision_id'],
+        'image_target_id' => ['image_target_id'],
+      ],
+    ]);
+  }
+  
+  // Create voting_vote table.
+  if (!$schema->tableExists('voting_vote')) {
+    \Drupal::logger('voting_system')->notice('Creating voting_vote table...');
+    $schema->createTable('voting_vote', [
+      'fields' => [
+        'id' => [
+          'type' => 'serial',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'uuid' => [
+          'type' => 'varchar',
+          'length' => 128,
+          'not null' => TRUE,
+        ],
+        'langcode' => [
+          'type' => 'varchar',
+          'length' => 32,
+          'not null' => TRUE,
+          'default' => 'pt-br',
+        ],
+        'question_id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'option_id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'user_id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'ip_address' => [
+          'type' => 'varchar',
+          'length' => 40,
+          'not null' => TRUE,
+        ],
+        'created' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'changed' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+      ],
+      'primary key' => ['id'],
+      'unique keys' => [
+        'voting_vote__uuid' => ['uuid'],
+      ],
+      'indexes' => [
+        'voting_vote__question' => ['question_id'],
+        'voting_vote__option' => ['option_id'],
+        'voting_vote__user' => ['user_id'],
+        'voting_vote__ip' => ['ip_address'],
+      ],
+    ]);
+  }
+
+  // Create voting_vote_field_data table.
+  if (!$schema->tableExists('voting_vote_field_data')) {
+    \Drupal::logger('voting_system')->notice('Creating voting_vote_field_data table...');
+    $schema->createTable('voting_vote_field_data', [
+      'fields' => [
+        'id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'langcode' => [
+          'type' => 'varchar',
+          'length' => 32,
+          'not null' => TRUE,
+          'default' => 'pt-br',
+        ],
+        'question_id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'option_id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'user_id' => [
+          'type' => 'int',
+          'unsigned' => TRUE,
+          'not null' => TRUE,
+        ],
+        'ip_address' => [
+          'type' => 'varchar',
+          'length' => 40,
+          'not null' => TRUE,
+        ],
+        'created' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'changed' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 0,
+        ],
+        'default_langcode' => [
+          'type' => 'int',
+          'not null' => TRUE,
+          'default' => 1,
+        ],
+      ],
+      'primary key' => ['id', 'langcode'],
+      'indexes' => [
+        'voting_vote__id__default_langcode__langcode' => ['id', 'default_langcode', 'langcode'],
+        'voting_vote__question' => ['question_id'],
+        'voting_vote__option' => ['option_id'],
+        'voting_vote__user' => ['user_id'],
+        'voting_vote__ip' => ['ip_address'],
+      ],
+    ]);
+  }
+  
+  \Drupal::logger('voting_system')->notice('voting_system module installation completed.');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function voting_system_uninstall() {
+  $schema = \Drupal::database()->schema();
+  
+  // Drop voting_question tables.
+  if ($schema->tableExists('voting_question')) {
+    $schema->dropTable('voting_question');
+  }
+  if ($schema->tableExists('voting_question_field_data')) {
+    $schema->dropTable('voting_question_field_data');
+  }
+
+  // Drop voting_option tables.
+  if ($schema->tableExists('voting_option')) {
+    $schema->dropTable('voting_option');
+  }
+  if ($schema->tableExists('voting_option_field_data')) {
+    $schema->dropTable('voting_option_field_data');
+  }
+  if ($schema->tableExists('voting_option__description')) {
+    $schema->dropTable('voting_option__description');
+  }
+  if ($schema->tableExists('voting_option__image')) {
+    $schema->dropTable('voting_option__image');
+  }
+
+  // Drop voting_vote tables.
+  if ($schema->tableExists('voting_vote')) {
+    $schema->dropTable('voting_vote');
+  }
+  if ($schema->tableExists('voting_vote_field_data')) {
+    $schema->dropTable('voting_vote_field_data');
+  }
+}
+
+/**
+ * Implements hook_schema().
+ */
+function voting_system_schema() {
+  $schema = [];
+
+  // Create voting_question table.
+  $schema['voting_question'] = [
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'uuid' => [
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+      ],
+      'langcode' => [
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'pt-br',
+      ],
+      'title' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'identifier' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'status' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ],
+      'show_results' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ],
+      'created' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'changed' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+    ],
+    'primary key' => ['id'],
+    'unique keys' => [
+      'voting_question__uuid' => ['uuid'],
+      'voting_question__identifier' => ['identifier'],
+    ],
+    'indexes' => [
+      'voting_question__status' => ['status'],
+    ],
+  ];
+
+  // Create voting_question_field_data table.
+  $schema['voting_question_field_data'] = [
+    'fields' => [
+      'id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'langcode' => [
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'pt-br',
+      ],
+      'title' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'identifier' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'status' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ],
+      'show_results' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ],
+      'created' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'changed' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'default_langcode' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ],
+    ],
+    'primary key' => ['id', 'langcode'],
+    'indexes' => [
+      'voting_question__id__default_langcode__langcode' => ['id', 'default_langcode', 'langcode'],
+      'voting_question__title' => ['title'],
+      'voting_question__identifier' => ['identifier'],
+    ],
+  ];
+
+  // Create voting_option table.
+  $schema['voting_option'] = [
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'uuid' => [
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+      ],
+      'langcode' => [
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'pt-br',
+      ],
+      'question_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ],
+      'title' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'weight' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'status' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ],
+      'created' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'changed' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+    ],
+    'primary key' => ['id'],
+    'unique keys' => [
+      'voting_option__uuid' => ['uuid'],
+    ],
+    'indexes' => [
+      'voting_option__question' => ['question_id'],
+      'voting_option__status' => ['status'],
+    ],
+  ];
+
+  // Create voting_option_field_data table.
+  $schema['voting_option_field_data'] = [
+    'fields' => [
+      'id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'langcode' => [
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'pt-br',
+      ],
+      'question_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ],
+      'title' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'description__value' => [
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+      ],
+      'description__format' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ],
+      'image__target_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ],
+      'image__alt' => [
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => FALSE,
+      ],
+      'image__title' => [
+        'type' => 'varchar',
+        'length' => 1024,
+        'not null' => FALSE,
+      ],
+      'image__width' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ],
+      'image__height' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ],
+      'weight' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'status' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ],
+      'created' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'changed' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'default_langcode' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ],
+    ],
+    'primary key' => ['id', 'langcode'],
+    'indexes' => [
+      'voting_option__id__default_langcode__langcode' => ['id', 'default_langcode', 'langcode'],
+      'voting_option__title' => ['title'],
+      'voting_option__question' => ['question_id'],
+    ],
+  ];
+
+  // Create voting_option__description table.
+  $schema['voting_option__description'] = [
+    'fields' => [
+      'bundle' => [
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'deleted' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'entity_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'revision_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'langcode' => [
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'pt-br',
+      ],
+      'delta' => [
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+      'description_value' => [
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+      ],
+      'description_format' => [
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ],
+    ],
+    'primary key' => ['entity_id', 'deleted', 'delta', 'langcode'],
+    'indexes' => [
+      'bundle' => ['bundle'],
+      'revision_id' => ['revision_id'],
+    ],
+  ];
+
+  // Create voting_option__image table.
+  $schema['voting_option__image'] = [
+    'fields' => [
+      'bundle' => [
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+      ],
+      'deleted' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'entity_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'revision_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'langcode' => [
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'pt-br',
+      ],
+      'delta' => [
+        'type' => 'int',
+        'not null' => TRUE,
+      ],
+      'image_target_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ],
+      'image_alt' => [
+        'type' => 'varchar',
+        'length' => 512,
+        'not null' => FALSE,
+      ],
+      'image_title' => [
+        'type' => 'varchar',
+        'length' => 1024,
+        'not null' => FALSE,
+      ],
+      'image_width' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ],
+      'image_height' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => FALSE,
+      ],
+    ],
+    'primary key' => ['entity_id', 'deleted', 'delta', 'langcode'],
+    'indexes' => [
+      'bundle' => ['bundle'],
+      'revision_id' => ['revision_id'],
+      'image_target_id' => ['image_target_id'],
+    ],
+  ];
+
+  // Create voting_vote table.
+  $schema['voting_vote'] = [
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'uuid' => [
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+      ],
+      'langcode' => [
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'pt-br',
+      ],
+      'question_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'option_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'user_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'ip_address' => [
+        'type' => 'varchar',
+        'length' => 40,
+        'not null' => TRUE,
+      ],
+      'created' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'changed' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+    ],
+    'primary key' => ['id'],
+    'unique keys' => [
+      'voting_vote__uuid' => ['uuid'],
+    ],
+    'indexes' => [
+      'voting_vote__question' => ['question_id'],
+      'voting_vote__option' => ['option_id'],
+      'voting_vote__user' => ['user_id'],
+      'voting_vote__ip' => ['ip_address'],
+    ],
+  ];
+
+  // Create voting_vote_field_data table.
+  $schema['voting_vote_field_data'] = [
+    'fields' => [
+      'id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'langcode' => [
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => 'pt-br',
+      ],
+      'question_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'option_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'user_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'ip_address' => [
+        'type' => 'varchar',
+        'length' => 40,
+        'not null' => TRUE,
+      ],
+      'created' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'changed' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'default_langcode' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ],
+    ],
+    'primary key' => ['id', 'langcode'],
+    'indexes' => [
+      'voting_vote__id__default_langcode__langcode' => ['id', 'default_langcode', 'langcode'],
+      'voting_vote__question' => ['question_id'],
+      'voting_vote__option' => ['option_id'],
+      'voting_vote__user' => ['user_id'],
+      'voting_vote__ip' => ['ip_address'],
+    ],
+  ];
+
+  return $schema;
+} 

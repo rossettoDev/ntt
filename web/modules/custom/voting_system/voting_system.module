@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * @file
+ * Contains voting_system.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function voting_system_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.voting_system':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Sistema de votação simples que permite aos usuários votarem em perguntas cadastradas pelo administrador.') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_entity_type_alter().
+ */
+function voting_system_entity_type_alter(array &$entity_types) {
+}
+
+/**
+ * Implements hook_theme().
+ */
+function voting_system_theme() {
+  return [
+    'voting_form' => [
+      'variables' => [
+        'question' => NULL,
+        'form' => NULL,
+        'has_voted' => FALSE,
+      ],
+      'template' => 'voting-form',
+    ],
+    'voting_no_questions' => [
+      'variables' => [
+        'message' => NULL,
+      ],
+      'template' => 'voting-no-questions',
+    ],
+    'voting_report' => [
+      'variables' => [
+        'questions' => [],
+      ],
+    ],
+  ];
+} 

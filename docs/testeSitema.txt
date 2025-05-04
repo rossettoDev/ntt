@@ -1,0 +1,50 @@
+Teste de Sistema de Votação Simples
+Descrição do Sistema
+O sistema de votação simples permite que os usuários votem em perguntas cadastradas pelo
+administrador. O administrador pode cadastrar perguntas com 8tulos, iden:ficadores e opções
+de resposta. As opções de resposta podem incluir uma imagem, um 8tulo e uma breve
+descrição.
+Os usuários podem votar nas perguntas cadastradas e, posteriormente, o administrador poderá
+consultar o número de votos recebidos por cada pergunta, juntamente com a porcentagem de
+votos.
+O administrador poderá configurar por votação mostrar ou ocultar o total de votos para cada
+pergunta após o usuário votar.
+O administrador poderá configurar desabilitar o sistema de votação de modo geral.
+O sistema também deve ser integrado ao Drupal, permi:ndo que as votações sejam exibidas.
+Além disso, o sistema deve ser capaz de fornecer uma API para que aplica:vos de terceiros
+autorizados possam interagir com as votações, permi:ndo, por exemplo, que as votações
+cadastradas sejam disponibilizadas em um aplica:vo com toda experiencia do fluxo em Drupal.
+Requisitos Funcionais
+1. O administrador deve poder cadastrar perguntas com 8tulos e iden:ficadores únicos.
+2. Cada pergunta pode ter várias opções de resposta.
+3. As opções de resposta podem incluir uma imagem, um 8tulo e uma breve descrição.
+4. Os usuários devem poder votar em uma pergunta selecionando uma das opções de
+resposta.
+5. O sistema deve registrar os votos recebidos para cada pergunta e opção de resposta.
+6. O administrador deve poder consultar o número total de votos recebidos por cada
+pergunta, juntamente com a porcentagem de votos.
+7. O administrador poderá configurar desabilitar o sistema de votação de modo geral.
+8. O sistema deve ser integrado ao Drupal para exibir as votações.
+9. O administrador deve poder configurar se o total de votos para cada pergunta deve ser
+exibido ou ocultado no Drupal após o usuário votar.
+10. sistema deve fornecer uma API para que aplica:vos de terceiros autorizados possam
+interagir com as votações cadastradas.
+Requisitos Não Funcionais
+1. O sistema deve ser fácil de usar e intui:vo para o administrador cadastrar perguntas e
+opções de resposta.
+2. O sistema deve ser seguro, protegendo os dados dos votos e evitando manipulações
+indevidas.
+Requisitos Técnicos
+1. Não u:lizar módulos da comunidade para resolução do problema com exceção do
+"restui".
+2. Não u:lizar node para as en:dades.
+3. O código devera ser entregue em um repositório do github, com dump do banco e
+ambiente via lando.
+Note que este teste é focado exclusivamente no desenvolvimento e funcionamento do backend
+do sistema. Portanto, o layout, design ou aparência da interface de usuário (frontend) não serão
+considerados na avaliação. Estamos interessados em aspectos como:
+• Implementação correta da lógica de negócios
+• Estrutura e organização do código
+• Funcionalidades implementadas conforme os requisitos
+• Uso apropriado de tecnologias e boas prá:cas de desenvolvimento backend
+• Performance e eficiência do código

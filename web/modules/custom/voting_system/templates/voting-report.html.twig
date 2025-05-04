@@ -1,0 +1,36 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display voting report.
+ *
+ * Available variables:
+ * - questions: Array of questions with their voting data.
+ */
+#}
+
+<div class="voting-report">
+  {% for question in questions %}
+    <div class="voting-report-question">
+      <h2>{{ question.label }}</h2>
+      <div class="voting-report-total">
+        {{ 'Total de votos: @total'|t({'@total': question.total_votes}) }}
+      </div>
+
+      <div class="voting-report-options">
+        {% for option in question.options %}
+          <div class="voting-report-option">
+            <div class="voting-report-option-header">
+              <div class="voting-report-option-label">{{ option.label }}</div>
+              <div class="voting-report-option-count">
+                {{ option.votes }} {{ 'votos'|t }} ({{ option.percentage }}%)
+              </div>
+            </div>
+            <div class="voting-report-option-bar-container">
+              <div class="voting-report-option-bar" style="width: {{ option.percentage }}%"></div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</div> 

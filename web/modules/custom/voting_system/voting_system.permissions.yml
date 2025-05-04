@@ -1,0 +1,4 @@
+access voting questions block:
+  title: 'Acessar bloco de questões de votação'
+  description: 'Permite que usuários vejam o bloco de questões de votação.'
+  restrict access: true 
