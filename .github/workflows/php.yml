@@ -1,0 +1,50 @@
+# Nome do workflow (aparece no GitHub Actions)
+name: PHP Composer
+
+on:
+  pull_request:
+    # O workflow será executado sempre que um Pull Request for aberto
+    # apontando para o branch "main"
+    branches: [ "main" ]
+
+# Permissões necessárias para executar o workflow
+permissions:
+  contents: read  # Apenas leitura do repositório
+
+jobs:
+  build:
+    # O job será executado em um servidor Ubuntu fornecido pelo GitHub
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Faz o checkout do código do repositório para dentro da máquina virtual do runner
+    - uses: actions/checkout@v4
+
+    # 2. Valida os arquivos composer.json e composer.lock
+    # O parâmetro --strict faz a validação ser mais rigorosa
+    - name: Validate composer.json and composer.lock
+      run: composer validate --strict
+
+    # 3. Cache das dependências do Composer
+    # Isso acelera as instalações, evitando baixar tudo novamente
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor  # Pasta a ser armazenada em cache
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}  # Chave única baseada no arquivo composer.lock
+        restore-keys: |
+          ${{ runner.os }}-php-  # Chave de fallback caso não exista cache exato
+
+    # 4. Instala as dependências do Composer
+    # --prefer-dist: baixa pacotes distribuídos (mais rápido)
+    # --no-progress: oculta a barra de progresso para logs mais limpos
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    # 5. (Opcional) Execução dos testes
+    # Para usar, você deve adicionar um script "test" no composer.json,
+    # por exemplo: "test": "vendor/bin/phpunit"
+    #
+    # - name: Run test suite
+    #   run: composer run-script test
